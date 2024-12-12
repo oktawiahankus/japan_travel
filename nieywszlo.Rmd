@@ -1,0 +1,109 @@
+---
+title: "Report2_TFALDS_Potok"
+author: "Magdalena Potok"
+date: "2024-10-28"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+#c za duze dla fishera - dlaczego? (odp zwiazana z #b)
+#nie trzeba generowac dla kazdej hipotezy H_i, dla kazdej H_i generujemy X_1, .. X_100 -> suma -> p-wartosc ALBO odrazu dla H_i suma cH_i T - Pois(100lambda)
+#d moc testu jak efektywne? 
+# suma pois iid to pois(n*lambda)
+
+
+```
+
+Let $X_1, \dots, X_n$ be the sample from the Poisson distribution. We consider the test for the hypothesis
+$$H_0: \mathbb{E}(X_i) = 5, \quad vs \quad H_1: \mathbb{E}(X_i) > 5, $$
+which rejects the null hypothesis for lage values of $\hat{X} = \frac{1}{n}\sum_{i = 1}^n X_i.$ The $p$-value of this test we calculate from formula $p$-value = $\mathbb{P}(T>\sum_{i = 1}^n \hat{X}) = \mathbb{P}(T> \frac{1}{n}\sum_{i = 1}^n X_i) = \mathbb{P}(nT > \sum_{i=1}^n X_i) = \mathbb{P}(Y > \sum_{i=1}^n X_i)$, gdzie $Y \sim Poiss(n5)$.
+
+```{r, echo = FALSE}
+?rpois
+
+zad1 = function(n){
+  x = rpois(n, 5)
+  p_val = 1 - ppois(sum(x), n*5)
+  return(p_val)
+}
+
+zad1(100)
+```
+
+```{r, echo = FALSE}
+v_p_val = c()
+for(i in 1:1000){
+  x = rpois(100, 5)
+  v_p_val = c(v_p_val, 1 - ppois(sum(x), 100*5))
+}
+hist(v_p_val)
+
+#b nie jest jednostajny!!
+```
+
+```{r, echo = FALSE}
+
+#1c
+alpha = 0.05
+n = 1000
+Bonf = c()
+Fish = c()
+v_p_val = c()
+for(j in 1:1000){
+  for(i in 1:1000){
+    x = rpois(100, 5)
+    v_p_val = c(v_p_val, 1 - ppois(sum(x), 100*5))
+  }
+Bonf = c(Bonf,min(v_p_val) < alpha/n)
+T = -2* sum(log(v_p_val))
+Fish = c(Fish,T > qchisq(1-alpha, 2*n))
+}
+sum(Bonf)/1000
+sum(Fish)/1000
+```
+
+
+
+```{r, echo = FALSE}
+x_1 = c(rpois(1,7), rpois(999,5))
+
+Bonf = c()
+Fish = c()
+v_p_val = c()
+for(j in 1:100){
+for(i in 1:1000){
+  x_1 = c(rpois(1,7), rpois(999,5))
+  v_p_val = c(v_p_val, 1 - ppois(sum(x_1), 1000*5))
+}
+Bonf = c(Bonf,min(v_p_val) < alpha/n)
+T = -2* sum(log(v_p_val))
+Fish = c(Fish,T > qchisq(1-alpha, 2*n))
+}
+Fish
+sum(Fish)/1000
+min(v_p_val) < alpha/n
+T = -2* sum(log(v_p_val))
+T > qchisq(1-alpha, 2*n)
+
+2/90+1/90^2
+1/90^2
+(1-1/90)^2
+
+1/2*exp(-3)+1/2*exp(-1)
+1-1/90^2
+
+qnorm(0.95)*50+2500
+3/4*92654/96513+1/4*92054/96513
+1/2+1/2*98977/99064
+(92654-1/2*(92054+91401))/97490
+1/2*(94990+94602)-1/2*(86013+84825)
+9377/98182
+(98612+98512)/(98707+98612)
+```
+
+
+
+
+
+
+
