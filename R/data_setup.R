@@ -18,3 +18,5 @@ japan_ts <- ts(japan_zoo, start = 1990, frequency = 12)
 plot(japan_ts)
 # na razie wygląda to całkiem git, ale nie wiem, czy takie ręczne ustawianie 
 # jest ok, czy nie, ale chyba inaczej się nie da, bo nie wczytywało automatcznie
+# frequency - the number of observations per unit of time, 
+# czyli by się zgadzało 
