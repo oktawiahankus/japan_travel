@@ -10,10 +10,12 @@ japan_dt[, `:=`(month = substr(month, 1, 3),
                 visitors = as.numeric(visitors))]
 # lubridate::my - converts character of format "Month Year" to date 
 japan_dt[, date := my(paste(month, year, sep = " "))]
-japan_dt <- japan_dt[, .(vistitors = sum(visitors, na.rm = TRUE)), by = date]
+japan_dt <- japan_dt[, .(visitors = sum(visitors, na.rm = TRUE)), by = date]
+# deleting lack of data, probably not gathered yet
+japan_dt <- japan_dt[visitors > 0]
 saveRDS(japan_dt, file = "data/japan_dt.RDS")
 
-japan_zoo <- zoo(japan_dt$vistitors, japan_dt$date)
+japan_zoo <- zoo(japan_dt$visitors, japan_dt$date)
 japan_ts <- ts(japan_zoo, start = 1990, frequency = 12)
 plot(japan_ts)
 # na razie wygląda to całkiem git, ale nie wiem, czy takie ręczne ustawianie 
