@@ -29,3 +29,5 @@ plot(japan_ts)
 plot_ly(japan_dt[order(japan_dt$date), ], x = ~date, y = ~visitors, type = 'scatter', mode = 'lines')
 
 # można to jeszcze rozbić na dane ze względu na kraje, skąd turysta
+# predykcja brakujących wartości - co by było, gdyby nie było COVIDU?
+# jakie starty przez COVID? (pieniądze)
