@@ -1,0 +1,7 @@
+library(data.table)#
+library(ggplot2)#
+library(forecast)#
+library(lubridate)#
+library(TSstudio)#
+library(zoo)
+load("/Users/magdalenapotok/Desktop/japan_travel/data/japan_dt.RDS")

@@ -1,0 +1,21 @@
+library(zoo)
+library(forecast)
+library(TSstudio)
+
+
+#getwd()
+setwd("/Users/magdalenapotok/Desktop/japan_travel/data")
+japan_dt <- readRDS("japan_dt.RDS")
+str(japan_dt)
+japan_zoo <- zoo(japan_dt$visitors, japan_dt$date) #tworzy obiekt serii czasowej, visitors to dane, date indeks czasowy
+japan_ts <- ts(japan_zoo, start = 1990, frequency = 12)
+plot(japan_ts)
+japan_spencer = filter(japan_ts, 1/320 * c(-3, -6, -5, 3, 21, 46, 67, 74, 67, 46, 21, 3, -5, -6, -3), sides = 2)
+plot(japan_ts)
+plot(japan_spencer)
+lines(japan_spencer, col = "red")
+plot(ma(japan_ts, order =8 ))
+str(japan_ts)
+Acf(japan_ts)
+ts_decompose(japan_ts)
+Pacf(japan_ts)
