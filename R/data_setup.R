@@ -31,3 +31,24 @@ plot_ly(japan_dt[order(japan_dt$date), ], x = ~date, y = ~visitors, type = 'scat
 # można to jeszcze rozbić na dane ze względu na kraje, skąd turysta
 # predykcja brakujących wartości - co by było, gdyby nie było COVIDU?
 # jakie starty przez COVID? (pieniądze)
+
+# wybór lat 2010-2019, przed covidem 10 lat
+# funkcja window zwraca obiek ts - to całkiem cool
+japan_filtered <- window(japan_ts, start=c(2010, 1), end=c(2019, 12))
+# on chciał, żeby koniecznie skrócić dane, bo nie widać sezonowości na wszystkich latach
+plot(japan_filtered, main="Turystyka w Japonii (2010-2019)", xlab="Czas", ylab="Liczba turystów")
+# w sumie miał racje, tu już ją widać ^
+ts_decompose(japan_filtered) # trend wzrostowy, widać sezonowość, całkiem epickie
+
+# tutaj ramka danych, bo lubię bardzo tę funkcję plot_ly xd
+japan_dt_filtered = japan_dt[japan_dt$date > as.Date("2009-12-31") & japan_dt$date < as.Date("2020-01-01") ]
+plot_ly(japan_dt_filtered[order(japan_dt_filtered$date), ], x = ~date, y = ~visitors, type = 'scatter', mode = 'lines')
+
+# szereg z covidem 2010-2024, to będzie 15 lat, czyli skrócone dane
+japan_covid <- window(japan_ts, start=c(2010, 1), end=c(2024, 12)) #japan_filtered_covid? dluga nazwa 
+plot(japan_covid, main="Turystyka w Japonii (2010-2024)", xlab="Czas", ylab="Liczba turystów")
+ts_decompose(japan_covid) #widać, że covid rozwala
+
+# i co, chyba trzeba dobrać model do filtered i filtered z covid
+# coś tam zaprognozować na podstawie bez covid i zobaczyć czy się pokrywa z danymi historycznymi
+

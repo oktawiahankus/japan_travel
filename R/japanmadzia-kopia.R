@@ -2,7 +2,8 @@ library(zoo)
 library(forecast)
 library(TSstudio)
 
-
+# jak cos to to jest plik na jakiś mój rózny syf,
+# ale najważniejsze rzeczy przeklejam do data_setup
 #getwd()
 setwd("/Users/magdalenapotok/Desktop/japan_travel/data")
 japan_dt <- readRDS("japan_dt.RDS")
@@ -19,3 +20,16 @@ str(japan_ts)
 Acf(japan_ts, lag = 60)
 ts_decompose(japan_ts)
 Pacf(japan_ts, lag = 60)
+class(japan_ts)
+japan_filtered <- window(japan_ts, start=c(2010, 1), end=c(2019, 12))
+class(japan_filtered)
+# tu już ładnie widać sezonowość :)
+plot(japan_filtered, main="Turystyka w Japonii (2010-2019)", xlab="Czas", ylab="Liczba turystów")
+decompose(japan_filtered)
+japan_dt_filtered = japan_dt[japan_dt$date > as.Date("2009-12-31") & japan_dt$date < as.Date("2020-01-01") ]
+
+plot_ly(japan_dt_filtered[order(japan_dt_filtered$date), ], x = ~date, y = ~visitors, type = 'scatter', mode = 'lines')
+ts_decompose(japan_filtered)
+japan_covid <- window(japan_ts, start=c(2010, 1), end=c(2024, 12))
+plot(japan_covid, main="Turystyka w Japonii (2010-2024)", xlab="Czas", ylab="Liczba turystów")
+ts_decompose(japan_covid)
