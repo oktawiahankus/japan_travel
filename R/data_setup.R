@@ -49,6 +49,16 @@ japan_covid <- window(japan_ts, start=c(2010, 1), end=c(2024, 12)) #japan_filter
 plot(japan_covid, main="Turystyka w Japonii (2010-2024)", xlab="Czas", ylab="Liczba turystów")
 ts_decompose(japan_covid) #widać, że covid rozwala
 
+
+# ile Japonia straciła z pwoodu spadku turysrtju w czasie pandemii covids-19?
+# czym jest spektrum? -> co to xd -> zbadac spektrum szeregu
 # i co, chyba trzeba dobrać model do filtered i filtered z covid
 # coś tam zaprognozować na podstawie bez covid i zobaczyć czy się pokrywa z danymi historycznymi
 
+# 2010-2019 dwa lata
+# 2010-2024 
+
+# wstepny opis danych, jakies pacf i inne
+# oktawia covid
+# julka 2010-2019 + wstepny
+# magda 2010-2024 
