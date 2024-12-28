@@ -19,6 +19,8 @@ japan_dt <- readRDS("data/japan_dt.RDS")
 
 japan_zoo <- zoo(japan_dt$visitors, japan_dt$date)
 japan_ts <- ts(japan_zoo, start = 1990, frequency = 12)
+saveRDS(japan_ts, file = "data/japan_ts.RDS")
+
 plot(japan_ts)
 # na razie wygląda to całkiem git, ale nie wiem, czy takie ręczne ustawianie 
 # jest ok, czy nie, ale chyba inaczej się nie da, bo nie wczytywało automatcznie
@@ -62,3 +64,7 @@ ts_decompose(japan_covid) #widać, że covid rozwala
 # oktawia covid
 # julka 2010-2019 + wstepny
 # magda 2010-2024 
+
+# wydaje mi się, że lepiej zacząć od 2012 roku (nie 2010), wtedy nie mamy tego nagłego
+# wzrostu i przez kolejne lata utrzymuje się trend mniej więcej liniowy, więc
+# wzięcie pod uwagę tego wzrostu może zaburzyć model
