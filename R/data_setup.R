@@ -47,7 +47,7 @@ japan_dt_filtered = japan_dt[japan_dt$date > as.Date("2009-12-31") & japan_dt$da
 plot_ly(japan_dt_filtered[order(japan_dt_filtered$date), ], x = ~date, y = ~visitors, type = 'scatter', mode = 'lines')
 
 # szereg z covidem 2010-2024, to będzie 15 lat, czyli skrócone dane
-japan_covid <- window(japan_ts, start=c(2010, 1), end=c(2024, 12)) #japan_filtered_covid? dluga nazwa 
+japan_covid <- window(japan_ts, start=c(2012, 1), end=c(2024, 12)) #japan_filtered_covid? dluga nazwa 
 plot(japan_covid, main="Turystyka w Japonii (2010-2024)", xlab="Czas", ylab="Liczba turystów")
 ts_decompose(japan_covid) #widać, że covid rozwala
 
@@ -63,8 +63,10 @@ ts_decompose(japan_covid) #widać, że covid rozwala
 # wstepny opis danych, jakies pacf i inne
 # oktawia covid
 # julka 2010-2019 + wstepny
-# magda 2010-2024 
+# magda 2012-2024 
 
 # wydaje mi się, że lepiej zacząć od 2012 roku (nie 2010), wtedy nie mamy tego nagłego
 # wzrostu i przez kolejne lata utrzymuje się trend mniej więcej liniowy, więc
 # wzięcie pod uwagę tego wzrostu może zaburzyć model
+
+# spoko, to 2012 (nawet lepiej, bo to moj ulubiony rok)
