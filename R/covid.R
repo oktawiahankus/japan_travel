@@ -150,3 +150,45 @@ kalman_plot <- plot_ly(test_dt, x = ~ds, y = ~y, name = 'test time series', type
   add_trace(data = kalman_dt, y = ~y, name = 'fitted', mode = 'lines')
 
 # trochę słabo :((
+
+# drugi sposób
+# wartości tylko do covida
+covid_cut <- window(training_ts, end = c(2020, 3))
+ts_plot(covid_cut)
+
+Acf(covid_cut)
+Pacf(covid_cut)
+
+before_covid <- auto.arima(covid_cut)
+covid_len <- empty_dt[is.na(visitors), .N]
+
+before_covid_fcast <- forecast(before_covid, h = covid_len)
+before_covid_facst_dt <- as.data.table(before_covid_fcast)
+new_dt <- copy(empty_dt)
+new_dt[is.na(visitors), visitors := before_covid_facst_dt[[1]]]
+
+plot_ly(japan_covid_dt, x = ~date, y = ~visitors, type = 'scatter', mode = 'lines', name = "original") %>%
+  add_trace(data = new_dt, y = ~visitors, name = "predicted covid")
+# te przewidywania wyglądają całkiem nieźle !!!
+
+new_zoo <- zoo(new_dt$visitors, new_dt$date)
+new_ts <- ts(new_zoo, start = 2012, frequency = 12)
+
+ts_plot(new_ts)
+ts_decompose(new_ts)
+# wygląda mega sezonowo
+Acf(new_ts, lag = 50)
+Pacf(new_ts, lag = 50)
+# pewnie różnicowanie krokiem 12 byłoby git, trend cały czas jest mega dziwny
+# ale tutaj jakoś lepiej wyglądają reisdua po dekompzycji
+
+new_fit <- auto.arima(new_ts)
+# drift - trohcę jak stały trend - po prostu przesunięcie o stałą
+new_fcast <- forecast(new_fit, h = length(test_ts))
+new_fcast_dt <- as.data.table(new_fcast)
+new_fcast_dt[, ds := test_dt$ds]
+colnames(new_fcast_dt)[1] <- "y"
+
+plot_ly(test_dt, x = ~ds, y = ~y, name = 'test time series', type = 'scatter', mode = 'lines') %>%
+  add_trace(data = new_fcast_dt, y = ~y, name = 'fitted', mode = 'lines')
+# też bardzo słabo 
