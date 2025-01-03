@@ -182,7 +182,12 @@ Pacf(new_ts, lag = 50)
 # pewnie różnicowanie krokiem 12 byłoby git, trend cały czas jest mega dziwny
 # ale tutaj jakoś lepiej wyglądają reisdua po dekompzycji
 
-new_fit <- auto.arima(new_ts)
+# trzeba podzielić
+
+new_train <- window(new_ts, start = c(2012, 1), end = c(2023, 10))
+new_test <-  window(new_ts, start = c(2023, 11))
+
+new_fit <- auto.arima(new_train)
 # drift - trohcę jak stały trend - po prostu przesunięcie o stałą
 new_fcast <- forecast(new_fit, h = length(test_ts))
 new_fcast_dt <- as.data.table(new_fcast)
@@ -191,7 +196,15 @@ colnames(new_fcast_dt)[1] <- "y"
 
 plot_ly(test_dt, x = ~ds, y = ~y, name = 'test time series', type = 'scatter', mode = 'lines') %>%
   add_trace(data = new_fcast_dt, y = ~y, name = 'fitted', mode = 'lines')
-# też bardzo słabo 
+# lepiej 
+
+# a jak to w ogóle wygląda z treningowymi danymi ???
+
+training_dt <- as.data.table(ts_to_prophet(training_ts))
+
+plot_ly(training_dt, x = ~ds, y = ~y, name = 'test time series', type = 'scatter', mode = 'lines') %>%
+  add_trace(y = new_fit$fitted, mode = 'lines', name = 'fitted')
+# dopasowanie jest całkiem niezłe
 
 # żeby je porównać możemy policzyć MSE w sumie 
 # i jeszcze policzyć AIC
