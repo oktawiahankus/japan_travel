@@ -66,7 +66,7 @@ ts_decompose(japan_covid) #widać, że covid rozwala
 # magda 2012-2024 
 
 # wydaje mi się, że lepiej zacząć od 2012 roku (nie 2010), wtedy nie mamy tego nagłego
-# wzrostu i przez kolejne lata utrzymuje się trend mniej więcej liniowy, więc
+# wzrostu i przez kolejne lata utrzymuje się trend mniej więcej stały, więc
 # wzięcie pod uwagę tego wzrostu może zaburzyć model
 
 # spoko, to 2012 (nawet lepiej, bo to moj ulubiony rok)
