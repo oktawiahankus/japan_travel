@@ -192,3 +192,11 @@ colnames(new_fcast_dt)[1] <- "y"
 plot_ly(test_dt, x = ~ds, y = ~y, name = 'test time series', type = 'scatter', mode = 'lines') %>%
   add_trace(data = new_fcast_dt, y = ~y, name = 'fitted', mode = 'lines')
 # też bardzo słabo 
+
+# żeby je porównać możemy policzyć MSE w sumie 
+# i jeszcze policzyć AIC
+AIC(new_fit)
+AIC(kalman_fit)
+
+# można też spróbować wszytsko za pomocą filtru Kalmana - ale ja nie za bardzo 
+# wiem jak on działa, a wszystko w internecie jest słabo zrozumiałe
