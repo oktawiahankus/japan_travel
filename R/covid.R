@@ -148,8 +148,10 @@ kalman_dt[, ds := test_dt$ds]
 
 kalman_plot <- plot_ly(test_dt, x = ~ds, y = ~y, name = 'test time series', type = 'scatter', mode = 'lines') %>%
   add_trace(data = kalman_dt, y = ~y, name = 'fitted', mode = 'lines')
-
 # trochę słabo :((
+
+plot_ly(training_dt, x = ~ds, y = ~y, name = 'test time series', type = 'scatter', mode = 'lines') %>%
+  add_trace(y = kalman_fit$fitted, mode = 'lines', name = 'fitted')
 
 # drugi sposób
 # wartości tylko do covida
