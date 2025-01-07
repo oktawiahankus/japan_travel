@@ -15,6 +15,13 @@ ts_decompose(japan_filtered)
 japan_dt_filtered = japan_dt[japan_dt$date > as.Date("2011-12-31") & japan_dt$date < as.Date("2024-12-31") ]
 plot_ly(japan_dt_filtered[order(japan_dt_filtered$date), ], x = ~date, y = ~visitors, type = 'scatter', mode = 'lines')
 
+plot_ly(japan_dt_filtered, x = ~date, y = ~visitors, type = 'scatter', mode = 'lines') %>%
+  layout(shapes = list(
+    list(type = "rect", x0 = "2020-04-01", x1 = "2022-10-01", y0 = 0, y1 = max(japan_dt_filtered$visitors, na.rm = TRUE), 
+         fillcolor = "rgba(255, 0, 0, 0.2)", line = list(width = 0), layer = "below"),
+    list(type = "line", x0 = "2021-07-01", x1 = "2021-07-01", y0 = 0, y1 = max(japan_dt_filtered$visitors, na.rm = TRUE), 
+         line = list(dash = "dot", color = "blue"))
+  ))
 
 train = window(japan_filtered, end=c(2022, 12))
 test = window(japan_filtered, start=c(2023, 1))
@@ -48,6 +55,7 @@ Box.test(residuals, lag=12, type="Ljung-Box") # sprawdza autokorelacje dla pierw
 
 
 forecast_arima = forecast::forecast(model_arima_2, h = length(test)) # czy my tak robiliśmy prognozę na zajęciach?xd bo nie było mnie
+par(mfrow = c(1,1))
 plot(forecast_arima)
 
 accuracy(forecast_arima,  test) # nwm tbh co to oznacza jeszcze
@@ -56,8 +64,49 @@ accuracy(forecast_arima,  test) # nwm tbh co to oznacza jeszcze
 #install.packages("astsa")
 library(astsa)
 fit_arima = auto.arima(train) # p = 0, d = 1, q = 1, P = 1, D = 0, Q = 1, S = 12
+par(mfrow = c(1,2))
 sarima.for(train, n.ahead = 24, p = 0, d = 1, q = 1, P = 1, D = 0, Q = 1, S = 12)
 plot(japan_filtered, ylim= c(0,40000))
 
 
 # w przyszlosci do zrb ses model, holt model, hw model - sprawdzenia 
+
+
+# model ses - Simple Exponential smoothing - uzywany do szeregow czasowych bez sezonowosci i trendu (tutaj nie bardzo)
+#install.packages("fpp2")
+library(fpp2)
+ses_model <- ses(train, h = length(test)) # h określa horyzont prognozy
+summary(ses_model)
+
+plot(ses_model) #xd no widac ze potrzebujemy bardziej zaawansowanego modelu
+
+# holt - uwzglednia dane z trendem, ale bez sezonowosci
+
+holt_model <- holt(train, h = length(test))
+summary(holt_model)
+
+plot(holt_model) #dalej slabo, to sa za proste modele
+
+#ets() Model wygładzenia wykładniczego - uwzględnia trend i sezonowość
+
+ets_model <- ets(train)
+summary(ets_model)
+
+plot(ets_model)
+# Prognoza przy użyciu ETS
+ets_forecast <- forecast(ets_model, h = length(test))
+plot(ets_forecast)
+AIC(ses_model$model, holt_model$model, ets_model, model_arima_2) #deklasacja ze strony arimy
+
+
+
+# te rzeczy jakeis dziwne ale to pozniej ogarne
+MSE_func = function(actual, predicted){
+  return(mean((actual - predicted)^2))
+}
+arima_forecast = forecast(model_arima_2, h = length(test))
+MSE_func(test, arima_forecast$mean)
+MSE_func(test, ets_forecast$mean)
+
+#test dieboldo-mariano
+dm.test(residuals(model_arima_2), residuals(ets_model), alternative = "two.sided")
