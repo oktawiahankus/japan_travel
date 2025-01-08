@@ -31,7 +31,14 @@ sqrt(mean(res_add^2))
 
 # usuwanie trendu
 
-
+# metoda sredniej ruchomej
+par(mfrow = c(1,1))
+plot(dec_mult$trend)
+plot(japan_filtered)
+lines(ma(japan_filtered, order =2 ), col = "red")
+lines(ma(japan_filtered, order =3 ), col = "blue")
+lines(ma(japan_filtered, order =4 ), col = "green")
+lines(ma(japan_filtered, order =5 ), col = "orange")
 
 
 japan_dt_filtered = japan_dt[japan_dt$date > as.Date("2011-12-31") & japan_dt$date < as.Date("2024-12-31") ]
