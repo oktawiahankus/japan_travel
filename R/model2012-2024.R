@@ -10,8 +10,30 @@ japan_zoo <- zoo(japan_dt$visitors, japan_dt$date) #tworzy obiekt serii czasowej
 japan_ts <- ts(japan_zoo, start = 1990, frequency = 12)
 japan_filtered <- window(japan_ts, start=c(2012, 1), end=c(2024, 12))
 plot(japan_filtered, main="Turystyka w Japonii (2012-2024)", xlab="Czas", ylab="Liczba turystów")
-decompose(japan_filtered)
-ts_decompose(japan_filtered) 
+
+# dekompozycja szeregu
+
+ts_decompose(japan_filtered, type = "both") 
+# ciezko cos z tego wywnioskowac, ogolnie komponenta sezonowa coprawda jest taka sama niezaleznie od trendu(?)
+# ale jest dosc mala, wiec nie ma to az tak wplywu na dane?? nie kumam troche
+# dobra ale z tych reszt mozna juz zobaczyc, ze multiplikatywny lepiej oddaje,
+# bo widac, ze w momencie gdy trend spada, to  dzieja sie jakies losowe rzeczy -> reszty sa proporcjonalne
+# do poziomu trendu, wieksze odchylenia sa w okresach niskiego trendu
+
+dec_mult = decompose(japan_filtered, type = "multiplicative")
+dec_add = decompose(japan_filtered, type = "additive")
+res_mult = dec_mult$random
+res_add = dec_add$random
+res_mult = na.omit(res_mult)
+res_add = na.omit(res_add)
+sqrt(mean(res_mult^2)) # blad sredniokwadratowy jest jakos tak znaczaco mniejszy xd
+sqrt(mean(res_add^2))
+
+# usuwanie trendu
+
+
+
+
 japan_dt_filtered = japan_dt[japan_dt$date > as.Date("2011-12-31") & japan_dt$date < as.Date("2024-12-31") ]
 plot_ly(japan_dt_filtered[order(japan_dt_filtered$date), ], x = ~date, y = ~visitors, type = 'scatter', mode = 'lines')
 
