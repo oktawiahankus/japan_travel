@@ -1,5 +1,5 @@
 
-par(mfrow = c(1, 1))
+par(mfrow = c(1, 2))
 
 japan_dt <- readRDS("data/japan_dt.RDS")
 
@@ -17,7 +17,7 @@ plot_ly(japan_dt_filtered[order(japan_dt_filtered$date), ], x = ~date, y = ~visi
 
 training <- window(japan_filtered, end=c(2018, 12))
 test <- window(japan_filtered, start=c(2019, 1))
-
+ts_plot(test)
 ndiffs(training) 
 Acf(training)
 Pacf(training)
@@ -70,9 +70,14 @@ plot(decomposed_data)
 acf(decomposed_data$random, na.action = na.pass)
 
 # d
+?decompose
 decomposed_multiplicative <- decompose(training, type = "multiplicative")
 str(decomposed_multiplicative)
 plot(decomposed_multiplicative)
+
+decomposed_add <- decompose(training, type = "additive")
+str(decomposed_add)
+plot(decomposed_add)
 
 # e
 ts_decomposed <- ts_decompose(training, type = "both")
