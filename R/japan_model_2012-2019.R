@@ -1,3 +1,4 @@
+
 par(mfrow = c(1, 1))
 
 japan_dt <- readRDS("data/japan_dt.RDS")
@@ -54,3 +55,66 @@ mse<-sum((f$mean-test)^2)
 
 
 AIC(model_season,auto_model)
+
+#dekompozycja
+
+decomposed_data <- decompose(training)
+str(decomposed_data)
+
+
+# b
+
+plot(decomposed_data)
+
+# c
+acf(decomposed_data$random, na.action = na.pass)
+
+# d
+decomposed_multiplicative <- decompose(training, type = "multiplicative")
+str(decomposed_multiplicative)
+plot(decomposed_multiplicative)
+
+# e
+ts_decomposed <- ts_decompose(training, type = "both")
+
+
+# f
+trend_ma <- ts_ma(training, n = 6)
+
+# g
+train_df <- ts_to_prophet(training)
+trend_df<-ts_to_prophet(trend_ma$ma_6)
+
+
+train_df <- train_df %>%
+  select(ds, original = y) %>%
+  left_join(trend_df, by = "ds") %>%
+  mutate(detrended = original - y)
+
+
+View(train_df)
+plot.ts(train_df$detrended)
+
+# h
+train_df <- train_df %>%
+  mutate(year = year(ds), month = month(ds))
+
+plot_ly(data = train_df, x = ~year, y = ~detrended, type = "scatter", mode = "lines")
+
+monthly_avg <- train_df %>%
+  group_by(month) %>%
+  summarize(month_avg = mean(detrended, na.rm = TRUE))
+
+
+train_df <- train_df %>%
+  left_join(monthly_avg, by = "month")
+
+
+# i
+
+train_df <- train_df %>%
+  mutate(noise = detrended - month_avg)
+
+
+ts.plot(train_df$noise)
+Acf(train_df$noise)
