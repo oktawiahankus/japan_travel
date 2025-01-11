@@ -41,29 +41,48 @@ residuals <- residuals(auto_model)
 plot(residuals)
 Acf(residuals, main="ACF reszt") 
 
-
+BIC(model_arima)
+BIC(auto_model)
+BIC(model_season)
 
 model_season <- tslm(training ~ trend + season)
 summary(model_season)
+
+residuals <- residuals(model_season)
+Acf(residuals, main="ACF reszt") 
 AIC(model_season)
 
 plot(training, main = "Trend Liniowy z Sezonowością", ylab = "Liczba pasażerów", xlab = "Rok")
 lines(fitted(model_season), col = "red", lwd = 2)
 legend("topleft", legend = c("Dane rzeczywiste", "Trend + sezonowość"), col = c("black", "red"), lty = 1)
 
-residuals <- residuals(model_season)
-plot(residuals)
-Acf(residuals, main="ACF reszt") 
+
 
 # h = 1*12 because, forecast is for 1 year for 12 months
-f<-forecast(model_arima, level=c(95), h=12)
-plot(test)
-lines(f$mean)
+f1<-forecast(model_arima, level=c(95), h=12)
+f2<-forecast(auto_model, level=c(95), h=12)
+f3<-forecast(model_season, level=c(95), h=12)
 
-f$mean-test
+data<-data.frame(czas=time(test),test,f1$mean,f2$mean,f3$mean)
 
 
-AIC(model_arima,auto_model)
+ggplot(data, aes(x = czas)) +
+  geom_line(aes(y = test, color = 'Szereg')) +
+  geom_line(aes(y = f1.mean, color = 'Model 1')) +
+  geom_line(aes(y = f2.mean, color = 'Model 2')) +
+  geom_line(aes(y = f3.mean, color = 'Model 3')) +
+  theme_minimal() +
+  labs(x = 'Czas', y = 'Wartość', color = 'Legenda') +
+  scale_color_manual(values = c('Szereg' = 'black', 'Model 1' = 'hotpink', 'Model 2' = 'blue', 'Model 3'= 'darkviolet'))
+
+sum((test-f1$mean)^2)
+sum((test-f2$mean)^2)
+sum((test-f3$mean)^2)
+
+
+sum((test-f1$mean))
+sum((test-f2$mean))
+sum((test-f3$mean))
 
 #dekompozycja
 
