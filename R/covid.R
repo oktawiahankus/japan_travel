@@ -1,5 +1,9 @@
 library(imputeTS)
 library(tseries)
+################################################################################
+# plik z testowaniem różnych metod; sprawdzenie, jak działają
+# czysty kod w plikach: "covid_data_prep.R" oraz "covid_models.R"
+################################################################################
 
 # kwiecień 2020 - zamknięcie granic
 # październik 2022 - wznowienie turystyki 
