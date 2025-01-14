@@ -35,9 +35,10 @@ ndiffs(diff_train) # stacjonarny
 
 par(mfrow = c(1, 2)) # Dwa wykresy obok siebie
 Acf(train)
-Acf(diff_train, main="ACF różnicowanych danych") # wg mnie MA(q) q = 4 albo 6 nwm 
-Pacf(diff_train, main="PACF różnicowanych danych") 
-auto.arima(train) #q = 2, p = 1 ok
+Acf(diff_train, main="ACF różnicowanych danych", lag = 24) # wg mnie MA(q) q = 4 albo 6 nwm 
+Pacf(diff_train, main="PACF różnicowanych danych", lag = 24) 
+nsdiffs(train)
+auto.arima(train) #q = 1, p = 1 ok
 
 # modele przerozne
 model_auto = auto.arima(train)
@@ -106,3 +107,23 @@ sum((test - forecast_auto$mean)^2)
 sum((test - forecast_arima$mean)^2) # okur ale duzoxd
 sum((test - model_sarima$pred)^2) # ten ma najmniej ale nie wiem, to ten sam model tylko pewnie jakis inny sposob dobierania tych wspolczynnikow
 
+
+# Analiza spektralna 
+# sluzy do okreslenia s 
+# robi sie dla szeregow stacjonarnych, wiec 
+
+# 1. Analiza z logarytmowaniem widma dla lepszej widoczności:
+spectrum(diff_train, spans = c(2, 2), log = "yes", 
+         main = "Logarytmiczne spektrum mocy - Turystyka w Japonii (2012-2024)")
+
+# 2. Odczytanie dominujących częstotliwości:
+spec <- spectrum(diff_train, spans = c(2, 2), plot = FALSE)
+dom_freq <- spec$freq[which.max(spec$spec)] # Znalezienie dominującej częstotliwości
+dom_period <- 1 / dom_freq                 # Okres w jednostkach czasu
+cat("Dominująca częstotliwość:", dom_freq, "\nOkres:", dom_period, "miesięcy\n")
+
+# 3. Wykorzystanie pakietu forecast do analizy FFT (Fast Fourier Transform):
+library(forecast)
+fft_result <- fourier(ts(japan_filtered, frequency = 12), K = 2) # K: liczba harmonicznych
+print(fft_result)
+plot_ly(japan_)
