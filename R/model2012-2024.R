@@ -52,6 +52,18 @@ plot_ly(japan_dt_filtered, x = ~date, y = ~visitors, type = 'scatter', mode = 'l
          line = list(dash = "dot", color = "blue"))
   ))
 
+ggplot(japan_dt_filtered, aes(x = date, y = visitors)) +
+  geom_line(color = "darkblue") +
+  annotate("rect", xmin = as.Date("2020-03-01"), xmax = as.Date("2022-10-01"), 
+           ymin = 0, ymax = max(japan_dt_filtered$visitors, na.rm = TRUE), 
+           fill = "red", alpha = 0.08) +
+  geom_vline(xintercept = as.Date("2021-07-01"), linetype = "dotted", color = "blue") +
+  labs(
+    x = "Rok",
+    y = "Liczba turystów"
+  ) +
+  theme_minimal()
+
 train = window(japan_filtered, end=c(2022, 12))
 test = window(japan_filtered, start=c(2023, 1))
 

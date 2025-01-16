@@ -28,12 +28,13 @@ test = window(japan_filtered, start=c(2023, 11))
 
 ts_plot(test)
 ts_plot(train)
-ts_decompose(train, type = "both") 
+ts_decompose(train, type = "multiplicative") 
 # on dla airpassengers wybral multiplikatywna, wiec tez tak zrobimy moze -- metoda analogicznego podejscia do wykladu
 #1. widac ze moment pandemii zaburza nam szereg, trend bylby staly jak w latach 2012-2019, ale covid to psuje
 # 2. widac sezonowosc, w ciagu roku mamy 3 maksima lokalne?
 # spodziewamy sie wiec, ze szereg nie bedzie stacjonarny, przekonajmy sie
-Acf(train, lag = 24) # duza czesc obserwacji lezy poza obszarem istotnosci, szereg nie  jest stacjo
+?Acf 
+Acf(train, lag = 24, title = "Acf") # duza czesc obserwacji lezy poza obszarem istotnosci, szereg nie  jest stacjo
 nd <- ndiffs(train)
 nsd <- nsdiffs(train)
 
