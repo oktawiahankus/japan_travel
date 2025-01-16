@@ -95,3 +95,18 @@ all_dt <- melt(all_dt, measure.vars = c("kalman", "past"),
 
 all_dt <- all_dt[, .(mse = mse_calc(y, value)), by = model]
 all_dt[, aic := c(kalman_fit$aic, past_fit$aic)]
+
+# 5. auto.arima in kalman
+arima_kalman_ts <- na_kalman(training_ts, model = "auto.arima")
+plot_ts(arima_kalman_ts, "Estymacja za pomocą filtru kalmana z użyciem auto.arima")
+# już tu widać, że będzie źle
+# w sumie to nawet nie wiem jak to działa
+arima_kalman_fit <- auto.arima(arima_kalman_ts)
+arima_kalman_fcast <- forecast(arima_kalman_fit, h = test_len)
+
+arima_kalman_fcast_dt <- forecast_to_dt(arima_kalman_fcast)
+
+arima_kalman_plot <- test_plot +
+  geom_line(data = arima_kalman_fcast_dt, aes(y = y, color = "arima-Kalman")) +
+  labs(color = "Model") +
+  scale_color_manual(values = c("arima-Kalman" = "hotpink"))
