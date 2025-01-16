@@ -65,7 +65,7 @@ before_covid_fcast <- forecast(before_covid, h = covid_len)
 full_training_ts <- copy(training_ts)
 full_training_ts[is.na(full_training_ts)] <- before_covid_fcast$mean
 
-plot_ts(full_training_ts, "Predykcja na podstawie przeszłych wartości")
+plot_ts(full_training_ts, "Covid na podstawie przeszłych wartości")
 
 past_fit <- auto.arima(full_training_ts)
 past_fcast <- forecast(past_fit, h = test_len)
