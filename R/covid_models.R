@@ -85,3 +85,13 @@ all_plot <- test_plot +
   scale_color_manual(values = c("past" = "hotpink", "Kalman" = "blue"))
 
 # tutaj prorównanie mse i aic
+
+all_dt <- copy(test_dt)
+all_dt[, `:=`(kalman = kalman_fcast_dt$y,
+              past = past_fcast_dt$y)]
+
+all_dt <- melt(all_dt, measure.vars = c("kalman", "past"),
+               id.vars = c("ds", "y"), variable.name = "model")
+
+all_dt <- all_dt[, .(mse = mse_calc(y, value)), by = model]
+all_dt[, aic := c(kalman_fit$aic, past_fit$aic)]
