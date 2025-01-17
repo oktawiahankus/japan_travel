@@ -6,6 +6,10 @@ library(ggplot2)
 library(latex2exp)
 library(astsa) # sarima.for
 library(tseries)
+library(ggseas)
+library(tidyr)
+library(data.table)
+library(gridExtra)
 setwd("/Users/magdalenapotok/Desktop/japan_travel/data")
 japan_dt <- readRDS("japan_dt.RDS")
 japan_zoo <- zoo(japan_dt$visitors, japan_dt$date)
@@ -15,17 +19,35 @@ japan_ts <- ts(japan_zoo, start = 1990, frequency = 12)
 japan_filtered <- window(japan_ts, start=c(2012, 1), end=c(2024, 12))
 plot(japan_filtered, main="Turystyka w Japonii (2012-2024)", xlab="Czas", ylab="Liczba turystów")
 
-japan_dt_filtered <- japan_dt[japan_dt$date > as.Date("2011-12-31") & japan_dt$date < as.Date("2024-12-31") ]
+japan_dt_filtered <- japan_dt[japan_dt$date > as.Date("2011-12-31") & japan_dt$date < as.Date("2023-11-01") ]
+ 
 
+library(scales)
 ggplot(data=japan_dt_filtered,aes(x=date,y=visitors))+
   geom_line(color='darkblue')+
   theme_minimal()+
+  scale_x_date(date_breaks = "1 year", 
+               limits = as.Date(c('2012-01-01','2023-11-01')),
+               date_labels = "%Y")+
+  geom_vline(xintercept = as.Date('2012-01-01'), linetype="dashed", color = "grey")+
+  geom_vline(xintercept = as.Date('2013-01-01'), linetype="dashed", color = "grey")+
+  geom_vline(xintercept = as.Date('2014-01-01'), linetype="dashed", color = "grey")+
+  geom_vline(xintercept = as.Date('2015-01-01'), linetype="dashed", color = "grey")+
+  geom_vline(xintercept = as.Date('2016-01-01'), linetype="dashed", color = "grey")+
+  geom_vline(xintercept = as.Date('2017-01-01'), linetype="dashed", color = "grey")+
+  geom_vline(xintercept = as.Date('2018-01-01'), linetype="dashed", color = "grey")+
+  geom_vline(xintercept = as.Date('2019-01-01'), linetype="dashed", color = "grey")+
+  geom_vline(xintercept = as.Date('2020-01-01'), linetype="dashed", color = "grey")+
+  geom_vline(xintercept = as.Date('2021-01-01'), linetype="dashed", color = "grey")+
+  geom_vline(xintercept = as.Date('2022-01-01'), linetype="dashed", color = "grey")+
+  geom_vline(xintercept = as.Date('2023-01-01'), linetype="dashed", color = "grey")+
+  geom_vline(xintercept = as.Date('2023-10-01'), linetype="dashed", color = "grey")+
   labs(x='Rok',y='Liczba turystów')
 
-
+#geom_hline(yintercept=2.25, linetype="dashed", color = "red")+ 
 train = window(japan_filtered, end=c(2023, 10))
 test = window(japan_filtered, start=c(2023, 11))
-
+?date_format
 ts_plot(test)
 ts_plot(train)
 ts_decompose(train, type = "multiplicative") 
@@ -34,7 +56,8 @@ ts_decompose(train, type = "multiplicative")
 # 2. widac sezonowosc, w ciagu roku mamy 3 maksima lokalne?
 # spodziewamy sie wiec, ze szereg nie bedzie stacjonarny, przekonajmy sie
 ?Acf 
-Acf(train, lag = 24, title = "Acf") # duza czesc obserwacji lezy poza obszarem istotnosci, szereg nie  jest stacjo
+ACF_train = Acf(train, lag = 24) # duza czesc obserwacji lezy poza obszarem istotnosci, szereg nie  jest stacjo
+plot(ACF_train, main = " ")
 nd <- ndiffs(train)
 nsd <- nsdiffs(train)
 
@@ -43,9 +66,62 @@ cat("Liczba potrzebnych różnic sezonowych (D):", nsd, "\n")
 diff_train = diff(train, differences = 1, lag = frequency(train))
 par(mfrow = c(1, 2))
 plot(train)
-abline(h = mean(train), col = "red")
+
+#zmiana train -> data frame
+df_train <- japan_dt[japan_dt$date > as.Date("2011-12-31") & japan_dt$date < as.Date("2023-11-01") ]
+
+#zmiana diff_train -> data.frame :(
+raw_diff_train <- "
+        Jan    Feb    Mar    Apr    May    Jun    Jul    Aug    Sep    Oct    Nov    Dec
+2013  -2082   -479  -1534   1296    222  -2638  -1564  -2160  -1726  -2473    562   1611
+2014   -311   -142   1947   3503  -3364    -56   -404   2408  -1006   2584   -157  -1555
+2015   -352  -2109   2731  -1105   2275  -1357   4732   -334   2247  -2609   -402  -1267
+2016   -381  -1278  -1364   -947  -1458   1030    472   -883  -1606   2262    346     92
+2017  -1438    504  -1270    716   -200   -765  -1708    986    875   -710    930    270
+2018   -497  -1091   2641    922     14   1606   1637   -800  -1740  -1346    106     50
+2019    212    442  -2369    277     13    675   -452   4545   2258   2498  -1741    625
+2020   1544   1139  -1219 -16763 -15885 -15887 -15913 -17877 -14188  -9067  -6987  -8058
+2021  -6542  -9297 -10327   2503   7666   3551  17641   9853   3299   -548  -1032  -3966
+2022   -432   2779   7179   6730   3322   6483  -6161  -1734   9550   5885   8233  14777
+2023   7026   6026   4619   8248   7471   6474   3584   6989   -530   4329      NA     NA
+"
+
+df_diff_train <- read.table(text = raw_diff_train, header = TRUE)
+df_diff_train$Year <- as.numeric(rownames(df_diff_train))
+rownames(df_diff_train) <- NULL
+df_diff_train_long <- melt(setDT(df_diff_train), 
+                           id.vars = "Year", 
+                           variable.name = "Month", 
+                           value.name = "visitors")
+df_diff_train_long[, date := as.Date(paste(Year, Month, "1"), format = "%Y %b %d")]
+df_diff_train_final <- df_diff_train_long[, .(date, visitors)]
+df_diff_train_final = na.omit(df_diff_train_final)
+df_diff_train_final = df_diff_train_final[order(df_diff_train_final$date)]
+df_diff_train = df_diff_train_final 
+
+# ggploty
+gg_df_train = ggplot(data=df_train,aes(x=date,y=visitors))+
+  geom_line(color='darkblue')+
+  theme_minimal()+
+  scale_x_date(date_breaks = "1 year", 
+               limits = as.Date(c('2012-01-01','2023-11-01')),
+               date_labels = "%Y")+
+  geom_hline(yintercept=mean(train), linetype="dashed", color = "red")+
+  labs(x='Rok',y='Liczba turystów')
+
+gg_df_diff_train = ggplot(data=df_diff_train,aes(x=date,y=visitors))+
+  geom_line(color='darkblue')+
+  theme_minimal()+
+  scale_x_date(date_breaks = "1 year", 
+               limits = as.Date(c('2013-01-01','2023-11-01')),
+               date_labels = "%Y")+
+  geom_hline(yintercept=mean(diff_train), linetype="dashed", color = "red")+
+  labs(x='Rok',y='Liczba turystów')
+grid.arrange(gg_df_train,gg_df_diff_train, ncol = 2)
+
 plot(diff_train) # no nie powiedzialabym, ze wariancja tutaj jest stala XD ale chyba nic nie uzyskamy lepszego
 abline(h = mean(diff_train), col = "red")
+diff_train
 # dodac przerywane szare linie co roku! bedzie widac sezonowosc lepiej
 
 
