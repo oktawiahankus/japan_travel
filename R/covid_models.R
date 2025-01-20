@@ -21,12 +21,14 @@ test_ts <-  window(empty_ts, start = c(2023, 11))
 test_dates <- test_dt$ds
 test_len <- length(test_ts)
 
-test_plot <- plot_ts(test_ts, "Zbiór treningowy")
+test_plot <- plot_ts(test_ts, "Predykcja wartości")
 
 forecast_to_dt <- function(fcast){
   data.table("ds" = test_dates,
              "y" = fcast$mean)
 }
+
+covid_len <- sum(is.na(training_ts))
 
 # 1. predykcja na podstawie przeszłych wartości
 
@@ -75,7 +77,7 @@ ggtsdisplay(before_fit_auto$residuals,
 
 before_fcast <- forecast(before_fit_3, h = covid_len)
 before_with_new <- c(before_covid_ts, before_fcast$mean)
-before_with_new_ts<- ts(before_with_new, start = c(2012, 1), frequency = 12)
+before_with_new_ts <- ts(before_with_new, start = c(2012, 1), frequency = 12)
 
 plot_ts(before_with_new_ts, "Przed pandemią COVID-19 z predykcją") +
   annotate("rect", xmin = as.Date("2020-03-01"), xmax = as.Date("2022-10-01"), 
@@ -134,86 +136,76 @@ ggtsdisplay(before_past_fit$residuals, lag = 100,
                          theme(plot.title = element_text(hjust = .5, size = 14))), 
             main = "residua - ARIMA(2,0,2)(1,0,1)[12] - z predykcją przed i po")
 
-quartz(h = 6, w = 9)
-# 1. liniowa interpolacja
+# 3. przewidywanie tylko z przeszłością
+before_fit <- auto.arima(before_with_new_ts)
+
+ggtsdisplay(before_fit$residuals, lag = 100,
+            theme = list(theme_minimal(), 
+                         theme(plot.title = element_text(hjust = .5, size = 14))), 
+            main = "residua - ARIMA(2,0,2)(1,0,1)[12] - z predykcją przed")
+
+# 4. liniowa interpolacja
 interpolation_ts <- na_interpolation(training_ts)
-plot_ts(interpolation_ts, "Estymacja za pomocą interpolacji")
 
-# 2. średnia ruchoma
+plot_ts(interpolation_ts, "Estymacja za pomocą interpolacji") +
+  annotate("rect", xmin = as.Date("2020-03-01"), xmax = as.Date("2022-11-01"), 
+           ymin = -Inf, ymax = Inf,
+           fill = "red", alpha = 0.08)
+
+quartz(h = 6, w = 9)
+# 5. średnia ruchoma
 ma_filter_ts <- na_ma(empty_ts, weighting = "simple")
-plot_ts(ma_filter_ts, "Estymacja za pomocą średniej ruchomej")
 
-# 3. filtr kalmana
+plot_ts(ma_filter_ts, "Estymacja za pomocą średniej ruchomej") +
+  annotate("rect", xmin = as.Date("2020-03-01"), xmax = as.Date("2022-11-01"), 
+           ymin = -Inf, ymax = Inf,
+           fill = "red", alpha = 0.08)
+
+# 6. filtr kalmana
 kalman_ts <- na_kalman(training_ts)
-plot_ts(kalman_ts, "Estymacja za pomocą filtru kalmana")
+
+plot_ts(kalman_ts, "Estymacja za pomocą filtru kalmana") +
+  annotate("rect", xmin = as.Date("2020-03-01"), xmax = as.Date("2022-11-01"), 
+           ymin = -Inf, ymax = Inf,
+           fill = "red", alpha = 0.08)
 
 kalman_fit <- auto.arima(kalman_ts)
+
+ggtsdisplay(kalman_fit$residuals, lag = 100,
+            theme = list(theme_minimal(), 
+                         theme(plot.title = element_text(hjust = .5, size = 14))), 
+            main = "residua - ARIMA(2,0,2)(0,1,1)[12] - filtr kalmana")
+
+# predykcja zbioru testowego 
+
+before_past_fcast <- forecast(before_past_fit, h = test_len)
+before_past_fcast_dt <- forecast_to_dt(before_past_fcast)
+
+before_fcast <- forecast(before_fit, h = test_len)
+before_fcast_dt <- forecast_to_dt(before_fcast)
+
 kalman_fcast <- forecast(kalman_fit, h = test_len)
-
 kalman_fcast_dt <- forecast_to_dt(kalman_fcast)
-
-kalman_plot <- test_plot +
-  geom_line(data = kalman_fcast_dt, aes(y = y, color = "Kalman")) +
-  labs(color = "Model") +
-  scale_color_manual(values = c("Kalman" = "hotpink"))
-
-# potem zrobić tabelkę z podsumowaniem mse i AIC
-# czy powinniśmy zrobić jeszcze jakieś badanie residuów?
-
-# 4. predykcja na podstawie przeszłych wartości
-before_covid_ts <- window(training_ts, end = c(2020, 3))
-plot_ts(before_covid_ts, "Przed padndemią COVID-19")
-
-before_covid_fit <- auto.arima(before_covid_ts)
-covid_len <- sum(is.na(training_ts))
-
-before_covid_fcast <- forecast(before_covid, h = covid_len)
-
-full_training_ts <- copy(training_ts)
-full_training_ts[is.na(full_training_ts)] <- before_covid_fcast$mean
-
-plot_ts(full_training_ts, "Covid na podstawie przeszłych wartości")
-
-past_fit <- auto.arima(full_training_ts)
-past_fcast <- forecast(past_fit, h = test_len)
-
-past_fcast_dt <- forecast_to_dt(past_fcast)
-
-past_plot <- test_plot +
-  geom_line(data = past_fcast_dt, aes(y = y, color = "past")) +
-  labs(color = "Model") +
-  scale_color_manual(values = c("past" = "hotpink"))
 
 
 all_plot <- test_plot +
   geom_line(data = kalman_fcast_dt, aes(y = y, color = "Kalman")) +
-  geom_line(data = past_fcast_dt, aes(y = y, color = "past")) +
+  geom_line(data = before_fcast_dt, aes(y = y, color = "przed")) +
+  geom_line(data = before_past_fcast_dt, aes(y = y, color = "przed i po")) +
   labs(color = "Model") +
-  scale_color_manual(values = c("past" = "hotpink", "Kalman" = "blue"))
+  scale_color_manual(values = c("przed i po" = "darkviolet", "przed" = "hotpink", "Kalman" = "blue"))
 
 # tutaj prorównanie mse i aic
 
 all_dt <- copy(test_dt)
 all_dt[, `:=`(kalman = kalman_fcast_dt$y,
-              past = past_fcast_dt$y)]
+              before = before_fcast_dt$y,
+              before_past = before_past_fcast_dt$y)]
 
-all_dt <- melt(all_dt, measure.vars = c("kalman", "past"),
+all_dt <- melt(all_dt, measure.vars = c("kalman", "before", "before_past"),
                id.vars = c("ds", "y"), variable.name = "model")
 
 all_dt <- all_dt[, .(mse = mse_calc(y, value)), by = model]
-all_dt[, aic := c(kalman_fit$aic, past_fit$aic)]
+all_dt[, aic := c(kalman_fit$aic, before_fit$aic, before_past_fit$aic)]
 
-# 5. auto.arima in kalman
-arima_kalman_ts <- na_kalman(training_ts, model = "auto.arima")
-plot_ts(arima_kalman_ts, "Estymacja za pomocą filtru kalmana z użyciem auto.arima")
-# już tu widać, że będzie źle
-# w sumie to nawet nie wiem jak to działa
-arima_kalman_fit <- auto.arima(arima_kalman_ts)
-arima_kalman_fcast <- forecast(arima_kalman_fit, h = test_len)
-
-arima_kalman_fcast_dt <- forecast_to_dt(arima_kalman_fcast)
-
-arima_kalman_plot <- test_plot +
-  geom_line(data = arima_kalman_fcast_dt, aes(y = y, color = "arima-Kalman")) +
-  labs(color = "Model") +
-  scale_color_manual(values = c("arima-Kalman" = "hotpink"))
+gt(all_dt)
