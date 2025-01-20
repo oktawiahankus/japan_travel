@@ -15,8 +15,11 @@ empty_ts <- ts(empty_dt$visitors, start = 2012, frequency = 12)
 
 empty_plot <- ggplot(empty_dt, aes(x = date, y = visitors))+
   geom_line(color = "darkblue") +
+  annotate("rect", xmin = as.Date("2020-03-01"), xmax = as.Date("2022-10-01"), 
+           ymin = -Inf, ymax = Inf,
+           fill = "red", alpha = 0.08) +
   theme_minimal() +
   labs(x = "Rok",
        y = "Liczba turystów",
        caption = "Liczba turystów w latach 2012-2024 z wyłączeniem danych covidowych") +
-  theme(plot.caption = element_text(hjust = .5))
+  theme(plot.caption = element_text(hjust = .5, size = 14))
