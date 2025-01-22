@@ -250,4 +250,8 @@ all_dt[, `:=`(rmse = sqrt(mse),
 
 # to daje też liczbę stopni swobody
 AIC(kalman_fit, before_fit, before_past_fit)
+# Warning message:
+#   In AIC.default(kalman_fit, before_fit, before_past_fit) :
+#   models are not all fitted to the same number of observations
+# pewnie przez to, że w kalmanie jest różnicowanie 
 
