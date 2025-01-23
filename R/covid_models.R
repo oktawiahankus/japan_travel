@@ -255,3 +255,5 @@ AIC(kalman_fit, before_fit, before_past_fit)
 #   models are not all fitted to the same number of observations
 # pewnie przez to, że w kalmanie jest różnicowanie 
 
+saveRDS(kalman_fcast_dt, file = "data/kalman_fcast_dt.RDS")
+
