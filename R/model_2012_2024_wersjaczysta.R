@@ -275,3 +275,53 @@ library(forecast)
 fft_result <- fourier(ts(japan_filtered, frequency = 12), K = 2) # K: liczba harmonicznych
 print(fft_result)
 plot_ly(japan_)
+
+
+
+# Analiza spektralna v2 - polecenia z list zadan + koentarz chatgpt do tego
+# Obliczanie spektrum mocy na danych treningowych
+AP = window(japan_filtered, end=c(2018, 12))
+plot(AP)
+boxplot(AP~cycle(AP))
+x <- diff(log(AP))
+plot(x)
+spectrum(as.matrix(AP),log="no")
+axis(1,at=c(/12))
+spectrum(spec_data, log = "no")$freq
+
+auto.arima(spec_data)
+ARMAspec(auto.arima(spec_data))
+?spectrum
+raw.spec <- spec.pgram(spec_data, taper = 0)
+plot(raw.spec, log = "no")
+spectrum(spec_data)
+spectrum(spec_data, span = 3, main = "Spektrum mocy z wygładzeniem (span=3)", log = "no")
+# Eksperymentuj z różnymi wartościami span, np.:
+spectrum(train, span = 5, main = "Spektrum mocy z wygładzeniem (span=5)")
+#install.packages("TSA")
+library(TSA)
+ARMAspec(auto.arima(train))
+ARMAspec(model = list(ar = 0.1), main = "Gęstość spektralna dla ARIMA(1,1,1)")
+#Funkcja periodogram() w pakiecie TSA służy do rysowania niewygładzonego periodogramu, który pokazuje rozkład mocy dla różnych częstotliwości.
+periodogram(train, main = "Periodogram dla danych treningowych")
+
+
+model_sarima_madzia <- auto.arima(train)
+# Parametry modelu (AR, MA, SAR, SMA)
+ar_coeff <- coef(model_sarima)["ar1"]
+ma_coeff <- coef(model_sarima)["ma1"]
+sar_coeff <- coef(model_sarima)["sar1"]
+sma_coeff <- coef(model_sarima)["sma1"]
+sma_coeff2 <- coef(model_sarima)["sma2"]
+par(mfrow = c(1,2))
+# Gęstość spektralna teoretyczna modelu SARIMA
+ARMAspec(model = list(
+  ar = c(ar_coeff),
+  ma = c(ma_coeff),
+  sar = c(sar_coeff),
+  sma = c(sma_coeff, sma_coeff2)
+), main = "Gęstość spektralna teoretyczna dla SARIMA(1,1,1)(1,0,2)[12]")
+# Spektrum mocy danych treningowych
+spectrum(train, main = "Spektrum mocy danych empirycznych", span = 5)
+
+
