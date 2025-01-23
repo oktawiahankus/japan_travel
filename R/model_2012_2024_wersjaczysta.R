@@ -211,7 +211,7 @@ forecast_arima616 = forecast(model_arima616, level = c(95), h = length(test))
 forecast_sarima114 = forecast(model_sarima114, level = c(95), h = length(test))
 # mozna tez uzyc funkcji sarima.for, bo byla na jakiejs tam liscie, v to jest odrazu forecast, ale dodam go do ggplot
 model_sarima = sarima.for(train, n.ahead = length(test), p = 1, d = 1, q = 1, P = 1, D = 0, Q = 2, S = 12) # wartosci wspolczynnikow wybralam z model_auto (auto.arima)
-
+summary(model_auto)
 data = data.frame(
   czas=as.Date(time(test)),
   test,

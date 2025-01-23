@@ -14,11 +14,16 @@ wszystkie_plot +
 
 training <- window(japan_filtered, end=c(2018, 12))
 auto_model <- auto.arima(training) 
-
+test_len = length(test)
 pred_len <- 4*12 + 11 + test_len - 1
 
 forecast_auto_jula <- forecast(auto_model, h = pred_len)
 forecast_window <- window(forecast_auto_jula$mean, start = c(2023, 11))
+
+MSE_julka = mean((test - forecast_window)^2)
+sqrt(MSE_julka)
+mean(abs(test - forecast_window))
+
 forecast_window_dt <- data.table("ds" = test_dates,
                                  "y" = forecast_window)
 
