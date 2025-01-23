@@ -200,6 +200,21 @@ Acf(kalman_fit$residuals, main = "ACF reszt")
 #             theme = list(theme_minimal(),
 #                          theme(plot.title = element_text(hjust = .5, size = 14))))
 
+# 7. filtr kalamana - metoda z auto.arima 
+# sprawdzenie czegoś
+aa_kalman_ts <- na_kalman(training_ts, model = "auto.arima")
+
+# Estymacja za pomocą filtru kalmana - auto.arima
+plot_ts(aa_kalman_ts) +
+  annotate("rect", xmin = as.Date("2020-03-01"), xmax = as.Date("2022-11-01"), 
+           ymin = -Inf, ymax = Inf,
+           fill = "red", alpha = 0.08)
+
+aa_kalman_fit <- auto.arima(aa_kalman_ts)
+
+# residua - ARIMA(2,0,2)(0,1,1)[12] - filtr kalmana - auto.arima
+Acf(aa_kalman_fit$residuals, main = "ACF reszt")
+
 # predykcja zbioru testowego 
 
 before_past_fcast <- forecast(before_past_fit, h = test_len)
@@ -211,6 +226,10 @@ before_fcast_dt <- forecast_to_dt(before_fcast)
 
 kalman_fcast <- forecast(kalman_fit, h = test_len)
 kalman_fcast_dt <- forecast_to_dt(kalman_fcast)
+
+# sprawdzenie
+aa_kalman_fcast <- forecast(aa_kalman_fit, h = test_len)
+aa_kalman_fcast_dt <- forecast_to_dt(aa_kalman_fcast)
 
 all_plot <- ggplot(test_dt, aes(x = ds, y = y, color = "Dane testowe")) +
   geom_line() +
@@ -224,8 +243,10 @@ all_plot <- all_plot +
   geom_line(data = kalman_fcast_dt, aes(y = y, color = "Model 1")) + # Kalman
   geom_line(data = before_past_fcast_dt, aes(y = y, color = "Model 2")) + # przed i po
   geom_line(data = before_fcast_dt, aes(y = y, color = "Model 3")) + # przed
+  geom_line(data = aa_kalman_fcast_dt, aes(y = y, color = "aa_kalman")) +
   scale_color_manual(values = c("Dane testowe" = "darkblue", "Model 1" = "blue", 
-                                "Model 2" = "darkviolet", "Model 3" = "hotpink"))
+                                "Model 2" = "darkviolet", "Model 3" = "hotpink",
+                                "aa_kalman" = "red"))
 
 # tutaj prorównanie mse i aic
 mse_calc <- function(true, estimates){
