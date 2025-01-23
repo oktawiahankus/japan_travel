@@ -5,6 +5,7 @@
 japan_covid_dt <- japan_dt[date > as.Date("2011-12-31")]
 japan_covid_ts <- window(japan_ts, start = c(2012, 1))
 
+saveRDS(japan_covid_dt, "data/japan_covid_dt.RDS")
 
 # kwiecień 2020 - zamknięcie granic
 # październik 2022 - wznowienie turystyki 

@@ -15,6 +15,8 @@ training_ts <- window(empty_ts, start = c(2012, 1), end = c(2023, 10))
 test_ts <-  window(empty_ts, start = c(2023, 11))
 
 test_dt <- as.data.table(ts_to_prophet(test_ts))
+
+saveRDS(test_dt, "data/test_dt.RDS")
 test_dates <- test_dt$ds
 
 test_len <- length(test_ts)
