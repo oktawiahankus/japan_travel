@@ -15,22 +15,6 @@ with_covid_fcast_dt <- data.table("ds" = as.Date(test_dates),
 before_2020_fcast_dt <- data.table("ds" = as.Date(test_dates),
                                    "y" = before_2020_fcast)
 
-<<<<<<< HEAD
-training <- window(japan_filtered, end=c(2018, 12))
-auto_model <- auto.arima(training) 
-test_len = length(test)
-pred_len <- 4*12 + 11 + test_len - 1
-
-forecast_auto_jula <- forecast(auto_model, h = pred_len)
-forecast_window <- window(forecast_auto_jula$mean, start = c(2023, 11))
-
-MSE_julka = mean((test - forecast_window)^2)
-sqrt(MSE_julka)
-mean(abs(test - forecast_window))
-
-forecast_window_dt <- data.table("ds" = test_dates,
-                                 "y" = forecast_window)
-=======
 all_comparison_plot <- ggplot(test_dt, aes(x = ds, y = y, color = "Dane testowe")) +
   geom_line() +
   theme_minimal() +
@@ -47,7 +31,6 @@ all_comparison_plot <- all_comparison_plot +
   scale_color_manual(values = c("Dane testowe" = "darkblue", "Model 1" = "blue", 
                                 "Model 2" = "darkviolet", "Model 3" = "hotpink"))
 
->>>>>>> 55b82999f5d10e77cbd309a03ed7457d3bf1c598
 
 japan_covid_dt <- readRDS("data/japan_covid_dt.RDS")
 colnames(japan_covid_dt) <- c("ds", "y")
@@ -84,5 +67,8 @@ all_comparison_plot +
 # pred_len <- 4 * 12 + 10 + test_len
 # forecast_auto_jula <- forecast(auto_model, h = pred_len)
 # forecast_window <- window(forecast_auto_jula$mean, start = c(2023, 11))
+# MSE_julka = mean((test - forecast_window)^2)
+# sqrt(MSE_julka)
+# mean(abs(test - forecast_window))
 # 
 # saveRDS(forecast_window, "data/before_2020_fcast.RDS")
