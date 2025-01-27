@@ -55,6 +55,3 @@ future_plot <- ggplot(kalman_fcast_dt, aes(x = ds, y = as.numeric(y), color = "M
   scale_color_manual(values = c("Model 2" = "darkviolet", "Model 3" = "hotpink",
                                 "Pełne dane" = "black"))
 
-
-
-
