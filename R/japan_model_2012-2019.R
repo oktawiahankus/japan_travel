@@ -35,9 +35,14 @@ summary(auto_model)
 
 model_arima <- arima(training, order = c(1,0,4))
 summary(model_arima)
-
+residuals <- residuals(model_arima)
+Box.test(residuals, lag = 12, type = "Ljung-Box")
 
 residuals <- residuals(auto_model)
+Acf(residuals)
+?Box.test
+Box.test(residuals, lag = 20, type = "Ljung-Box")
+
 plot(residuals)
 Acf(residuals, main="ACF reszt") 
 

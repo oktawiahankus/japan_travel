@@ -1,3 +1,4 @@
+setwd("/Users/magdalenapotok/Desktop/japan_travel")
 kalman_fcast_dt <- readRDS("data/kalman_fcast_dt.RDS")
 with_covid_fcast <- readRDS("data/with_covid_fcast.RDS")
 before_2020_fcast <- readRDS("data/before_2020_fcast.RDS")
@@ -95,3 +96,12 @@ full_comparison_plot +
 # mean(abs(test - forecast_window))
 # 
 # saveRDS(forecast_window, "data/before_2020_fcast.RDS")
+
+
+w_covid = auto.arima(train)
+w_covid_f = forecast(w_covid, h = length(test))
+length(test)
+w_covid_er =  test - w_covid_f$mean 
+kalman_er = test - kalman_fcast$mean
+
+dm.test(w_covid_er, kalman_er, alternative = "two.sided")

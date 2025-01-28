@@ -10,8 +10,8 @@ library(tseries)
 library(tidyr)
 library(data.table)
 library(gridExtra)
-setwd("/Users/magdalenapotok/Desktop/japan_travel/data")
-japan_dt <- readRDS("japan_dt.RDS")
+setwd("/Users/magdalenapotok/Desktop/japan_travel")
+japan_dt <- readRDS("data/japan_dt.RDS")
 japan_zoo <- zoo(japan_dt$visitors, japan_dt$date)
 
 #dande koncza sie na 2024-08
@@ -163,6 +163,7 @@ auto.arima(train) #q = 1, p = 1 ok
 
 # modele przerozne
 model_auto = auto.arima(train)
+
 model_arima616 = arima(train, order = c(6,1,6))
 model_sarima616 = arima(train, order = c(6,1,6), seasonal = list(order = c(2,0,1), period = 12))
 model_sarima114 = arima(train, order = c(1,1,4), seasonal = list(order = c(2,0,1), period = 12))
@@ -208,6 +209,10 @@ Acf(residuals_auto, main = "SARIMA(1,1,1)(1,0,2)[12]")
 
 # jak przewiduja???
 forecast_auto = forecast(model_auto, level = c(95), h = length(test))
+accuracy(forecast_auto, test)
+checkresiduals(forecast_auto)
+Box.test(residuals(forecast_auto), lag = 10, type = "Ljung-Box")
+
 forecast_arima616 = forecast(model_arima616, level = c(95), h = length(test))
 forecast_sarima114 = forecast(model_sarima114, level = c(95), h = length(test))
 # mozna tez uzyc funkcji sarima.for, bo byla na jakiejs tam liscie, v to jest odrazu forecast, ale dodam go do ggplot
