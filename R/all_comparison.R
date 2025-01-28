@@ -44,6 +44,29 @@ all_comparison_plot +
                                 "Pełne dane" = "black"))
 
 
+# madzia - ja tutaj cos probuje np zeby zrobic to jako jeden slajd na prezentacji?
+
+full_comparison_plot <- all_comparison_plot +
+  geom_line(data = japan_covid_dt, aes(y = y, color = "Pełne dane")) +
+  scale_color_manual(values = c("Dane testowe" = "darkblue", "Model 1" = "blue", 
+                                "Model 2" = "darkviolet", "Model 3" = "hotpink",
+                                "Pełne dane" = "black"))
+
+# Stworzenie zbliżenia (ten sam wykres, ale przycięty do końcowego okresu)
+zoom_plot <- full_comparison_plot +
+  coord_cartesian(xlim = c(as.Date("2023-11-01"), max(test_dt$ds)), 
+                  ylim = c(min(kalman_fcast_dt$y, na.rm = TRUE), max(test_dt$y, na.rm = TRUE))) +
+  theme(legend.position = "none", axis.title = element_blank())+ # Ukrywamy legendę w insetcie
+  labs(x = NULL, y = NULL)
+
+# Wklejenie zbliżenia jako inset w lewym dolnym rogu
+
+full_comparison_plot +
+  annotation_custom(ggplotGrob(zoom_plot), 
+                    xmin = as.Date("2012-01-01"), xmax = as.Date("2017-01-01"),
+                    ymin = 2000, ymax = 12000)  # Dostosowanie miejsca wklejenia
+
+
 
 # to do przeklikania w pliku "model_2012_2024_wersjaczysta.R
 # tak, żeby potem tylko wczytać RDS
