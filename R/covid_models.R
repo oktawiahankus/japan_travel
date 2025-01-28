@@ -71,7 +71,8 @@ Acf(before_fit_3$residuals, main = "ACF reszt")
 # coeftest(before_fit_6)
 
 # model automatyczny
-before_fit_auto <- auto.arima(before_covid_ts)
+before_fit_auto <- auto.arima(before_covid_ts, ic = "aic")
+# arima(before_covid_ts, order = c(2,0,2), seasonal = list(order = c(1,0,1), period = 12))
 
 # residua - ARIMA(2,0,2)x(1,0,1)[12]
 Acf(before_fit_auto$residuals, main = "ACF reszt")
@@ -143,6 +144,7 @@ before_past_fit <- auto.arima(before_past_train_ts)
 
 # residua - ARIMA(2,0,2)(1,0,1)[12] - z predykcją przed i po
 Acf(before_past_fit$residuals, main = "ACF reszt")
+Box.test(before_past_fit$residuals, lag = 7, type = "Ljung")
 # ggtsdisplay(before_past_fit$residuals, lag = 100,
 #             theme = list(theme_minimal(), 
 #                          theme(plot.title = element_text(hjust = .5, size = 14))))
