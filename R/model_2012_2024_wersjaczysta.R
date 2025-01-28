@@ -167,6 +167,7 @@ model_arima616 = arima(train, order = c(6,1,6))
 model_sarima616 = arima(train, order = c(6,1,6), seasonal = list(order = c(2,0,1), period = 12))
 model_sarima114 = arima(train, order = c(1,1,4), seasonal = list(order = c(2,0,1), period = 12))
 model_sarima116 = arima(train, order = c(1,1,6), seasonal = list(order = c(2,0,1), period = 12))
+model_sarima114_1 = arima(train, order = c(1,1,4), seasonal = list(order = c(1,0,2), period = 12))
 
 model_season = tslm(train ~ trend + season)
 model_ets = ets(train)
@@ -176,7 +177,7 @@ summary(model_auto)
 summary(model_arima616)
 summary(model_season) 
 summary(model_ets)
-
+BIC(model_auto, model_sarima114, model_sarima114_1)
 round(AIC(model_auto, model_arima616, model_sarima616, model_sarima114,model_sarima116),2) #auto model lepszy, ale nie duzo tbh
 round(BIC(model_auto, model_arima616, model_sarima616, model_sarima114,model_sarima116),2) #znowu nieduzo lepszy
 # wybieramy 3 najlepsze na podstawie AIC i BIC
@@ -201,7 +202,7 @@ qqline(residuals_arima)
 par(mfrow = c(1,3))
 Acf(residuals_arima616, main = "ARIMA(6,1,6)") # ups tu wystaje xd
 Acf(residuals_sarima114, main = "SARIMA(1,1,4)(2,0,1)[12]")
-Acf(residuals_auto, main = "SARIMA(1,1,1)(2,0,1)[12]")
+Acf(residuals_auto, main = "SARIMA(1,1,1)(1,0,2)[12]")
 
 
 
@@ -229,7 +230,7 @@ ggplot(data, aes(x = czas)) +
   labs(x = 'Czas', y = 'Wartość', color = 'Legenda') +
   scale_color_manual(values = c('Dane testowe' = 'black', 'SARIMA(1,1,1)(1,0,2)_{12}' = 'hotpink', 'eARIMA(1,1,4)' = 'blue', 'SSarima' = 'darkviolet'),
                      labels = c('Dane testowe' = 'Dane testowe', 
-                                'SARIMA(1,1,1)(1,0,2)_{12}' = expression(SARIMA(1,1,1)(2,0,1)[12]), 
+                                'SARIMA(1,1,1)(1,0,2)_{12}' = expression(SARIMA(1,1,1)(1,0,2)[12]), 
                                 'eARIMA(1,1,4)' = expression(ARIMA(6,1,6)),
                                  'SSarima' = expression(SARIMA(1,1,4)(2,0,1)[12])))+
   scale_x_date(date_breaks = "1 month", 
