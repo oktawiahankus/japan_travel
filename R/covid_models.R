@@ -71,10 +71,10 @@ Acf(before_fit_3$residuals, main = "ACF reszt")
 # coeftest(before_fit_6)
 
 # model automatyczny
-before_fit_auto <- auto.arima(before_covid_ts, ic = "aic")
+before_fit_auto <- auto.arima(before_covid_ts)
 # arima(before_covid_ts, order = c(2,0,2), seasonal = list(order = c(1,0,1), period = 12))
 
-# residua - ARIMA(2,0,2)x(1,0,1)[12]
+# residua - ARIMA(2,0,2)x(1,0,0)[12]
 Acf(before_fit_auto$residuals, main = "ACF reszt")
 # ggtsdisplay(before_fit_auto$residuals,
 #             theme = list(theme_minimal(), 
