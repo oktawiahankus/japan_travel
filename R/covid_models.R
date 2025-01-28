@@ -12,7 +12,7 @@ plot_ts <- function(ts){
 
 # podział danych na treningowe i testowe
 training_ts <- window(empty_ts, start = c(2012, 1), end = c(2023, 10))
-test_ts <-  window(empty_ts, start = c(2023, 11))
+test_ts <-  window(empty_ts, start = c(2023, 11), end = c(2024, 08))
 
 test_dt <- as.data.table(ts_to_prophet(test_ts))
 
@@ -194,6 +194,7 @@ plot_ts(kalman_ts) +
 
 kalman_fit <- auto.arima(kalman_ts)
 
+# saveRDS(kalman_fit, "data/kalman_model.RDS")
 # residua - ARIMA(2,0,2)(0,1,1)[12] - filtr kalmana
 Acf(kalman_fit$residuals, main = "ACF reszt")
 # ggtsdisplay(kalman_fit$residuals, lag = 100,
